@@ -1,6 +1,6 @@
 # gqrx_scan
 
-A scanner to interface with GQRX.  
+A scanner to interface with GQRX, based on the remote control tool https://github.com/marmelo/gqrx-remote  
 
 Simply loops over a list of frequencies in a csv and listens for activity.  
 
