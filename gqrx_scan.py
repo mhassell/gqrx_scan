@@ -4,7 +4,7 @@ import time
 
 class Scanner:
 
-	def __init__(self, hostname='127.0.0.1', port=7356, directory='/Users/matthewhassell/GitHub/misc', waitTime=5, signalStrength=-15):
+	def __init__(self, hostname='127.0.0.1', port=7356, directory='/', waitTime=5, signalStrength=-15):
 		self.host = hostname
 		self.port = port
 		self.directory = directory
