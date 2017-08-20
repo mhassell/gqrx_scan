@@ -29,7 +29,7 @@ class Scanner:
 		while(1):
 			for freq in self.freqs.keys():
 				self._set_freq(freq)
-				self._set_mode(self.freqs[freq])
+				self._set_mode(self.freqs[freq]['mode'])
 				self._set_squelch(self.signalStrength)
 				time.sleep(0.5)
 				if float(self._get_level()) >= self.signalStrength:
@@ -38,6 +38,40 @@ class Scanner:
 					while float(self._get_level()) >= self.signalStrength:
 						time.sleep(self.waitTime)
 
+	def scan_range(self, minfreq, maxfreq, mode, save = None):
+		"""
+		Scan a range of frequencies
+
+		:param minfreq: lower frequency
+		:param maxfreq: upper frequency
+		:param mode: mode to scan in
+		:param save: (optional) a txt file to save the active frequencies to
+		:return: none
+
+		"""
+		if save is not None:
+			pass
+
+		else:
+			freq = minfreq
+			while(1):
+				if freq <= maxfreq:
+					self._set_freq(freq)
+					self._set_mode(mode)
+					self._set_squelch(self.signalStrength)
+					time.sleep(0.5)
+					if float(self._get_level()) >= self.signalStrength:
+						timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
+						print timenow, freq
+						while float(self._get_level()) >= self.signalStrength:
+							time.sleep(self.waitTime)
+					else:
+						freq = freq + 100
+				else:
+					freq = minfreq
+
+
+		pass
 
    	def load(self, freq_csv='freq.csv'):
    		"""
@@ -67,6 +101,9 @@ class Scanner:
 
    	def _get_level(self):
    		return self._update("l")
+
+	def _get_mode(self):
+		return self._update('m')
 
 if __name__ == "__main__":
 	scanner = Scanner()

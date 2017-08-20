@@ -34,3 +34,5 @@ TBD:
 
 3. Set squelch/signalStrength for each channel
 
+4. Ability to scan over a range of frequencies to look fo activity
+
