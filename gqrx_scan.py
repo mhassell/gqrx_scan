@@ -38,7 +38,7 @@ class Scanner:
 					while float(self._get_level()) >= self.signalStrength:
 						time.sleep(self.waitTime)
 
-	def scan_range(self, minfreq, maxfreq, mode, save = None):
+	def scan_range(self, minfreq, maxfreq, mode, step=500, save = None):
 		"""
 		Scan a range of frequencies
 
@@ -49,6 +49,12 @@ class Scanner:
 		:return: none
 
 		"""
+		minfreq = str(float(minfreq) * 1e5)
+		minfreq = int(minfreq.replace('.', ''))
+
+		maxfreq = str(float(maxfreq) * 1e5)
+		maxfreq = int(maxfreq.replace('.', ''))
+
 		if save is not None:
 			pass
 
@@ -56,6 +62,7 @@ class Scanner:
 			freq = minfreq
 			while(1):
 				if freq <= maxfreq:
+
 					self._set_freq(freq)
 					self._set_mode(mode)
 					self._set_squelch(self.signalStrength)
@@ -66,7 +73,7 @@ class Scanner:
 						while float(self._get_level()) >= self.signalStrength:
 							time.sleep(self.waitTime)
 					else:
-						freq = freq + 100
+						freq = freq + step
 				else:
 					freq = minfreq
 

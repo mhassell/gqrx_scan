@@ -20,7 +20,20 @@ to import the csv into the scanner, and then run
 
 	scanner.scan()
 
-There's a sample csv file for the format the scanner expects.  The first column is the frequency, the second is the mode, and the third is an optional tag for the channel.  This is displayed in the terminal, along with the time and frequency, when a transmission occurs.
+To scan a range of frequencies with a given mode, we can instead use the scan_range method as follows:
+
+    scanner.scan_range(minfreq, maxfreq, mode, step=500, save = None)
+    
+This loops continuously from minfreq to maxfreq with a step size of step (defaults to 500 Hz) and stops 
+when there is a transmission.  In the future I'd like to add a save option to write active frequencies to a file for later review.
+As an example, we can scan the US FM broadcast band by way of the command
+
+    scanner.scan_range(88.0, 108.0, 'WFM_ST', step=100000)
+    
+This will loop over the FM broadcast bands and stop on the first active station.
+
+There's a sample csv file for the format the scanner expects.  The first column is the frequency, the second is the mode, and the third is an optional tag for the channel.  
+This is displayed in the terminal, along with the time and frequency, when a transmission occurs.
 
 Make sure you have enabled remote connections in GQRX.
 
@@ -34,5 +47,7 @@ TBD:
 
 3. Set squelch/signalStrength for each channel
 
-4. Ability to scan over a range of frequencies to look fo activity
+4. Timeout for scan_range (so as not to get stuck on a birdie or a continuous broadcast)
+
+5. Logging for the scan_range function to find interesting frequencies automatically.
 
