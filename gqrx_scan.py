@@ -70,8 +70,13 @@ class Scanner:
 					if float(self._get_level()) >= self.signalStrength:
 						timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
 						print timenow, freq
+						print("Press enter to continue scanning")
 						while float(self._get_level()) >= self.signalStrength:
-							time.sleep(self.waitTime)
+							key = raw_input()
+							if key == '':
+								freq = freq + step
+								break
+
 					else:
 						freq = freq + step
 				else:
