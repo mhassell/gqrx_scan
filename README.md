@@ -51,3 +51,6 @@ TBD:
 
 5. Logging for the scan_range function to find interesting frequencies automatically.
 
+6. Make a GUI
+
+7. Interface with automatic recording of a given frequency (or set of freqs) and save the audio and timestamp in a sqlite database

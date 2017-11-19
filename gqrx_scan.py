@@ -4,7 +4,7 @@ import time
 
 class Scanner:
 
-	def __init__(self, hostname='127.0.0.1', port=7356, directory='/', waitTime=8, signalStrength=-12):
+	def __init__(self, hostname='127.0.0.1', port=7356, directory='/', waitTime=5, signalStrength=-20):
 		self.host = hostname
 		self.port = port
 		self.directory = directory
@@ -31,7 +31,7 @@ class Scanner:
 				self._set_freq(freq)
 				self._set_mode(self.freqs[freq]['mode'])
 				self._set_squelch(self.signalStrength)
-				time.sleep(0.5)
+				time.sleep(1)
 				if float(self._get_level()) >= self.signalStrength:
 					timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
 					print timenow, freq, self.freqs[freq]['tag']
