@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import telnetlib
 import csv
 import time
