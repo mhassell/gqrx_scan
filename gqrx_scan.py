@@ -15,8 +15,12 @@ class Scanner:
 		"""
 		update the frequency/mode GQRX is listening to
 		"""
-		tn = telnetlib.Telnet(self.host, self.port)
-		tn.write(('%s\n' % msg).encode('ascii'))
+                try:
+    		    tn = telnetlib.Telnet(self.host, self.port)
+                except Exception as e: 
+                    print("Error connecting to " + self.host + ":" + str(self.port) + "\n\t" + str(e))
+                    exit()
+    		tn.write(('%s\n' % msg).encode('ascii'))
 		response = tn.read_some().decode('ascii').strip()
 		tn.write('c\n'.encode('ascii'))
 		return response
