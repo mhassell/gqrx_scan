@@ -8,9 +8,9 @@ Usage:
 
 Simply import the module, and make a scanner instance:
 
-	scanner = gqrx_scan.Scanner(hostname='127.0.0.1', port=7356, directory='/', waitTime=8, signalStrength=-12)
+	scanner = gqrx_scan.Scanner(hostname='127.0.0.1', port=7356, directory='/', wait_time=8, signal_strength=-12)
 
-These are the default arguments in the constructor, which you can modify as you need.  The hostname and port are where the scanner connects to GQRX.  The directory is where you've saved a csv file with the frequencies you wish to scan.  The waitTime is how long the scanner waits after a signal drops below the threshold before continuing scanning.  This is useful if you have dispatch tones before a voice dispatch, for example.   The signalStrength field is the strength below which signals are ignored.
+These are the default arguments in the constructor, which you can modify as you need.  The hostname and port are where the scanner connects to GQRX.  The directory is where you've saved a csv file with the frequencies you wish to scan.  The wait_time is how long the scanner waits after a signal drops below the threshold before continuing scanning.  This is useful if you have dispatch tones before a voice dispatch, for example.   The signal_strength field is the strength below which signals are ignored.
 
 Once you have a scanner object, call 
 
@@ -45,7 +45,7 @@ TBD:
 
 2. Ability to add/delete frequencies in the GUI
 
-3. Set squelch/signalStrength for each channel
+3. Set squelch/signal_strength for each channel
 
 4. Timeout for scan_range (so as not to get stuck on a birdie or a continuous broadcast)
 
