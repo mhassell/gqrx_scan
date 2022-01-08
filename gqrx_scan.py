@@ -4,12 +4,12 @@ import time
 
 class Scanner:
 
-    def __init__(self, hostname='127.0.0.1', port=7356, directory='/', waitTime=5, signalStrength=-20):
+    def __init__(self, hostname='127.0.0.1', port=7356, directory='/', wait_time=5, signal_strength=-20):
         self.host = hostname
         self.port = port
         self.directory = directory
-        self.waitTime = waitTime
-        self.signalStrength = signalStrength
+        self.wait_time = wait_time
+        self.signal_strength = signal_strength
 
     def _update(self, msg):
         """
@@ -34,13 +34,13 @@ class Scanner:
             for freq in self.freqs.keys():
                 self._set_freq(freq)
                 self._set_mode(self.freqs[freq]['mode'])
-                self._set_squelch(self.signalStrength)
+                self._set_squelch(self.signal_strength)
                 time.sleep(1)
-                if float(self._get_level()) >= self.signalStrength:
+                if float(self._get_level()) >= self.signal_strength:
                     timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
                     print(timenow, freq, self.freqs[freq]['tag'])
-                    while float(self._get_level()) >= self.signalStrength:
-                        time.sleep(self.waitTime)
+                    while float(self._get_level()) >= self.signal_strength:
+                        time.sleep(self.wait_time)
 
     def scan_range(self, minfreq, maxfreq, mode, step=500, save = None):
         """
@@ -69,13 +69,13 @@ class Scanner:
 
                     self._set_freq(freq)
                     self._set_mode(mode)
-                    self._set_squelch(self.signalStrength)
+                    self._set_squelch(self.signal_strength)
                     time.sleep(0.5)
-                    if float(self._get_level()) >= self.signalStrength:
+                    if float(self._get_level()) >= self.signal_strength:
                         timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
                         print(timenow, freq)
                         print("Press enter to continue scanning")
-                        while float(self._get_level()) >= self.signalStrength:
+                        while float(self._get_level()) >= self.signal_strength:
                             key = raw_input()
                             if key == '':
                                 freq = freq + step
