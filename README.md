@@ -23,13 +23,13 @@ to import the csv into the scanner, and then run
 To scan a range of frequencies with a given mode, we can instead use the scan_range method as follows:
 
     scanner.scan_range(minfreq, maxfreq, mode, step=500, save = None)
-    
+
 This loops continuously from minfreq to maxfreq with a step size of step (defaults to 500 Hz) and stops 
 when there is a transmission.  In the future I'd like to add a save option to write active frequencies to a file for later review.
 As an example, we can scan the US FM broadcast band by way of the command
 
     scanner.scan_range(88.0, 108.0, 'WFM_ST', step=100000)
-    
+ 
 This will loop over the FM broadcast bands and stop on the first active station.
 
 There's a sample csv file for the format the scanner expects.  The first column is the frequency, the second is the mode, and the third is an optional tag for the channel.  
@@ -51,6 +51,6 @@ TBD:
 
 5. Logging for the scan_range function to find interesting frequencies automatically.
 
-6. Make a GUI
+6. Interface with the bookmarks in gqrx
 
 7. Interface with automatic recording of a given frequency (or set of freqs) and save the audio and timestamp in a sqlite database
