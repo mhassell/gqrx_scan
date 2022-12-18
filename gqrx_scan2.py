@@ -49,17 +49,17 @@ class Scanner:
         """
         Scan a range of frequencies
 
-        :param minfreq: lower frequency
-        :param maxfreq: upper frequency
+        :param minfreq: lower frequency (Mhz)
+        :param maxfreq: upper frequency (Mhz)
         :param mode: mode to scan in
         :param save: (optional) a txt file to save the active frequencies to
         :return: none
 
         """
-        minfreq = str(float(minfreq) * 1e5)
+        minfreq = str(float(minfreq) * 1e6)
         minfreq = int(minfreq.replace('.', ''))
 
-        maxfreq = str(float(maxfreq) * 1e5)
+        maxfreq = str(float(maxfreq) * 1e6)
         maxfreq = int(maxfreq.replace('.', ''))
 
         if save is not None:
@@ -108,14 +108,20 @@ class Scanner:
     			line = csvfile.readline()
 
     		freq_lines = []
-    		while line is not None:
+    		while line:
     			line = csvfile.readline()
-    			freq_lines.append(line)
+    			freq_lines.append(line.split(';'))
 
+    	import pdb; pdb.set_trace()
     	import pandas as pd
     	freq_df = pd.DataFrame(freq_lines, columns=['Frequency', 'Name', 'Modulation', 'Bandwidth', 'Tags'])
 
-    	for 
+    	# as of now (2022), there isn't a way to set bandwidth (I tried to use B and b to no avail) so we dont save that info
+    	for row in freq_df.itertuples():
+    		# [1] = freq
+    		# [2] = name
+    		# [3] = mod
+    		self.freqs[int(row[1])] = {'mode': row[3], 'tag':row[2]}
 
 
     def load(self, freq_csv='freq.csv'):
@@ -128,8 +134,8 @@ class Scanner:
         with open(freq_csv, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter = ',')
             for row in reader:
-                freq = str(float(row[0])*1e5)                            # 1e5 isn't good
-                freq = int(freq.replace('.', ''))                        # converted to hz
+                freq = str(int(float(row[0])*1e6))                            # Input is in mhz
+                freq = int(freq.replace('.', ''))                        	  # converted to hz
                 if len(row) == 2:
                     self.freqs[freq] = {'mode': row[1], 'tag': None}
                 elif len(row) == 3:
