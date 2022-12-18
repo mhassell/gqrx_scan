@@ -96,7 +96,7 @@ class Scanner:
         with open(freq_csv, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter = ',')
             for row in reader:
-                freq = str(float(row[0])*1e5)                            # 1e5 isn't good
+                freq = str(int(float(row[0])*1e6))                      # 1e5 isn't good
                 freq = int(freq.replace('.', ''))                       # converted to hz
                 if len(row) == 2:
                     self.freqs[freq] = {'mode': row[1], 'tag': None}
