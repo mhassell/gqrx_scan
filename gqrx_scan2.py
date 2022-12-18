@@ -1,3 +1,6 @@
+# New scanner based on the file in
+# /home/matthewhassell/.config/gqrx
+
 import telnetlib
 import csv
 import time
@@ -85,6 +88,35 @@ class Scanner:
                         freq = freq + step
                 else:
                     freq = minfreq
+
+    def read_bookmarks(self, file_path):
+    	'''
+		Read the bookmarks associated with gqrx
+		to fit better with the gqrx application
+    	'''
+    	self.freqs = {}
+    	with open(file_path, 'r') as csvfile:
+    		freq_block = False # did we hit the freqs yet?
+    		line = csvfile.readline()
+
+    		while True:
+	    		if 'Frequency' in line:
+	    			freq_block = True
+	    			break
+
+    			# throw away the color scheme section
+    			line = csvfile.readline()
+
+    		freq_lines = []
+    		while line is not None:
+    			line = csvfile.readline()
+    			freq_lines.append(line)
+
+    	import pandas as pd
+    	freq_df = pd.DataFrame(freq_lines, columns=['Frequency', 'Name', 'Modulation', 'Bandwidth', 'Tags'])
+
+    	for 
+
 
     def load(self, freq_csv='freq.csv'):
         """
