@@ -53,10 +53,10 @@ class Scanner:
         :return: none
 
         """
-        minfreq = str(float(minfreq) * 1e5)
+        minfreq = str(int(float(minfreq) * 1e6))
         minfreq = int(minfreq.replace('.', ''))
 
-        maxfreq = str(float(maxfreq) * 1e5)
+        maxfreq = str(int(float(maxfreq) * 1e6))
         maxfreq = int(maxfreq.replace('.', ''))
 
         if save is not None:
