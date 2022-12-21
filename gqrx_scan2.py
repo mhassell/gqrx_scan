@@ -13,6 +13,13 @@ class Scanner:
         self.directory = directory
         self.wait_time = wait_time
         self.signal_strength = signal_strength
+        self.mode_map = {'Narrow FM' : 'FM',
+                         '' : 'RAW',
+                         'AM'         : 'AM',
+
+
+        # M - Set demodulator mode (OFF, RAW, AM, FM, WFM, WFM_ST,
+        # WFM_ST_OIRT, LSB, USB, CW, CWL, CWU)
 
     def _update(self, msg):
         """
@@ -45,7 +52,7 @@ class Scanner:
                     while float(self._get_level()) >= self.signal_strength:
                         time.sleep(self.wait_time)
 
-    def scan_range(self, minfreq, maxfreq, mode, step=500, save = None):
+    def scan_range(self, minfreq, maxfreq, mode, step=500, save=None):
         """
         Scan a range of frequencies
 
@@ -56,20 +63,17 @@ class Scanner:
         :return: none
 
         """
-        minfreq = str(float(minfreq) * 1e6)
-        minfreq = int(minfreq.replace('.', ''))
+        minfreq = str(int(float(minfreq) * 1e6))
+        maxfreq = str(int(float(maxfreq) * 1e6))
 
-        maxfreq = str(float(maxfreq) * 1e6)
-        maxfreq = int(maxfreq.replace('.', ''))
 
         if save is not None:
-            pass
+            writer = open(save, 'wa')
 
         else:
             freq = minfreq
             while(1):
                 if freq <= maxfreq:
-
                     self._set_freq(freq)
                     self._set_mode(mode)
                     self._set_squelch(self.signal_strength)
@@ -77,6 +81,8 @@ class Scanner:
                     if float(self._get_level()) >= self.signal_strength:
                         timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
                         print(timenow, freq)
+                        if save is not None:
+                            writer.write(f"{timenow}:  {freq}")
                         print("Press enter to continue scanning")
                         while float(self._get_level()) >= self.signal_strength:
                             key = raw_input()
