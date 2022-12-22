@@ -67,15 +67,7 @@ class Scanner:
 
         """
         minfreq = str(int(float(minfreq) * 1e6))
-<<<<<<< HEAD
-        minfreq = int(minfreq.replace('.', ''))
-
         maxfreq = str(int(float(maxfreq) * 1e6))
-        maxfreq = int(maxfreq.replace('.', ''))
-=======
-        maxfreq = str(int(float(maxfreq) * 1e6))
-
->>>>>>> gqrx_bookmark_scanner
 
         if save is not None:
             writer = open(save, 'wa')
