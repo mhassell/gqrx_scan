@@ -21,9 +21,8 @@ to import the csv into the scanner, and then run
 	scanner.scan()
 
 If you store bookmarks in GQRX, you can use those as input to the scanner as well:
-	```
+
 	scanner.read_bookmarks(path-to-bookmarks)
-	```
 
 and again call the scan() method.   The bookmarks are stored (at least for me on Linux) in /home/{user}/.config/gqrx/bookmarks.csv.
 
