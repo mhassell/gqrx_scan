@@ -2,13 +2,13 @@
 
 A scanner to interface with GQRX, based on the remote control tool https://github.com/marmelo/gqrx-remote  
 
-Simply loops over a list of frequencies in a csv and listens for activity.  
+Loops over a list of frequencies in a csv and listens for activity.  
 
 Usage: 
 
-Simply import the module, and make a scanner instance:
+Import the module, and make a scanner instance:
 
-	scanner = gqrx_scan.Scanner(hostname='127.0.0.1', port=7356, directory='/', wait_time=8, signal_strength=-12)
+	scanner = gqrx_scan.Scanner(hostname='127.0.0.1', port=7356, directory='/', wait_time=5, signal_strength=-50)
 
 These are the default arguments in the constructor, which you can modify as you need.  The hostname and port are where the scanner connects to GQRX.  The directory is where you've saved a csv file with the frequencies you wish to scan.  The wait_time is how long the scanner waits after a signal drops below the threshold before continuing scanning.  This is useful if you have dispatch tones before a voice dispatch, for example.   The signal_strength field is the strength below which signals are ignored.
 
@@ -19,6 +19,13 @@ Once you have a scanner object, call
 to import the csv into the scanner, and then run 
 
 	scanner.scan()
+
+If you store bookmarks in GQRX, you can use those as input to the scanner as well:
+	```
+	scanner.read_bookmarks(path-to-bookmarks)
+	```
+
+and again call the scan() method.   The bookmarks are stored (at least for me on Linux) in /home/{user}/.config/gqrx/bookmarks.csv.
 
 To scan a range of frequencies with a given mode, we can instead use the scan_range method as follows:
 
@@ -49,8 +56,6 @@ TBD:
 
 4. Timeout for scan_range (so as not to get stuck on a birdie or a continuous broadcast)
 
-5. Logging for the scan_range function to find interesting frequencies automatically.
+5. Logging for the scan_range function to find interesting frequencies automatically
 
-6. Interface with the bookmarks in gqrx
-
-7. Interface with automatic recording of a given frequency (or set of freqs) and save the audio and timestamp in a sqlite database
+6. Interface with automatic recording of a given frequency (or set of freqs) and save the audio and timestamp like gqrx does
