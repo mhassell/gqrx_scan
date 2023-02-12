@@ -81,7 +81,7 @@ class Scanner:
                     self._set_freq(freq)
                     self._set_mode(mode)
                     self._set_squelch(self.signal_strength)
-                    time.sleep(0.1)
+                    time.sleep(0.2)
                     if float(self._get_level()) >= self.signal_strength:
                         timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
                         print(timenow, freq)
@@ -89,7 +89,7 @@ class Scanner:
                             writer.write(f"{timenow}:  {freq}")
                         print("Press enter to continue scanning")
                         while float(self._get_level()) >= self.signal_strength:
-                            key = raw_input()
+                            key = input()
                             if key == '':
                                 freq = freq + step
                                 break
