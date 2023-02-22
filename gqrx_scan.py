@@ -1,6 +1,7 @@
 import telnetlib
 import csv
 import time
+import pandas as pd
 
 class Scanner:
 
@@ -22,9 +23,11 @@ class Scanner:
                          'WFM (oirt)': 'WFM_ST_OIRT',
                          'CW-L'      : 'CWL',
                          'CW-U'      : 'CWU'}
-
         # M - Set demodulator mode (OFF, RAW, AM, FM, WFM, WFM_ST,
         # WFM_ST_OIRT, LSB, USB, CW, CWL, CWU)
+        # self.block_list = pd.Inter # list of lists to block a small window of birdies and other interference
+        # self.block_radius = 10 # +/- Hz
+
 
     def _update(self, msg):
         """
@@ -78,21 +81,28 @@ class Scanner:
             while(1):
 
                 if freq <= maxfreq:
+
                     self._set_freq(freq)
                     self._set_mode(mode)
                     self._set_squelch(self.signal_strength)
-                    time.sleep(0.2)
+                    time.sleep(0.1)
                     if float(self._get_level()) >= self.signal_strength:
                         timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
                         print(timenow, freq)
                         if save is not None:
                             writer.write(f"{timenow}:  {freq}")
-                        print("Press enter to continue scanning")
+                        # print("Press enter to continue scanning")
                         while float(self._get_level()) >= self.signal_strength:
                             key = input()
                             if key == '':
                                 freq = freq + step
                                 break
+                            else:
+                                pass
+                            #elif 'block' in key.lower():
+                            #    if key.lower() == 'block':
+                            #        self.block_list.append([freq-self.block_radius, freq+self.block_radius])
+
 
                     else:
                         freq = freq + step
@@ -103,6 +113,7 @@ class Scanner:
     	'''
 		Read the bookmarks associated with gqrx
 		to fit better with the gqrx application
+        In Linux systems the file is in ~/.config/gqrx/bookmarks.csv
     	'''
     	self.freqs = {}
     	with open(file_path, 'r') as csvfile:
@@ -122,7 +133,6 @@ class Scanner:
     			line = csvfile.readline()
     			freq_lines.append(line.split(';'))
 
-    	import pandas as pd
     	freq_df = pd.DataFrame(freq_lines, columns=['Frequency', 'Name', 'Modulation', 'Bandwidth', 'Tags'])
 
     	# as of now (2022), there isn't a way to set bandwidth (I tried to use B and b to no avail) so we dont save that info
@@ -131,7 +141,7 @@ class Scanner:
     		# [2] = name
     		# [3] = mod
             try:
-                self.freqs[int(row[1])] = {'mode': self.mode_map[row[3].strip()], 'tag':row[2].strip()}
+                self.freqs[int(row[1])] = {'mode': self.mode_map[row[3].strip()], 'name':row[2].strip(), 'tag': row[5].strip()}
             except AttributeError:
                 pass
 
