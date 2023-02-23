@@ -11,6 +11,7 @@ class Scanner:
         self.directory = directory
         self.wait_time = wait_time
         self.signal_strength = signal_strength
+        self.freqs = None
         self.mode_map = {'Narrow FM' : 'FM',
                          'Demod Off' : 'OFF',
                          'Raw I/Q'   : 'RAW',
@@ -25,9 +26,29 @@ class Scanner:
                          'CW-U'      : 'CWU'}
         # M - Set demodulator mode (OFF, RAW, AM, FM, WFM, WFM_ST,
         # WFM_ST_OIRT, LSB, USB, CW, CWL, CWU)
-        # self.block_list = pd.Inter # list of lists to block a small window of birdies and other interference
-        # self.block_radius = 10 # +/- Hz
+        self.block_list = pd.Series(dtype=bool) # list of lists to block a small window of birdies and other interference
+        self.block_radius = 10000 # +/- Hz (same 2*bw as NFM)
 
+    def _add_new_block(self, freq):
+        '''
+        Add an interval (freq-self.block_radius, freq+self.block_radius)
+        '''
+        radius = self.block_radius
+        block_index = pd.IntervalIndex.from_tuples([(freq-radius, freq+radius)], closed='both')
+        block_ser = pd.Series(True, index=block_index)
+        self.block_list = self.block_list.append(block_ser)
+
+    def _is_blocked(self, freq):
+        try:
+            blocks = self.block_list.loc[freq]
+            if blocks: # only a single block interval with this freq
+                return blocks
+        except KeyError: # not blocked
+            return False
+        except ValueError: # means blocked in more than one interval
+            return any(blocks)
+        except:
+            return False
 
     def _update(self, msg):
         """
@@ -50,13 +71,24 @@ class Scanner:
         """
         while(1):
             for freq in self.freqs.keys():
+                try:
+                    if self.freqs[freq]['tag'].lower() == 'skip':
+                        print(f"Skipping {freq}: {self.freqs[freq]['name']}")
+                        continue
+                except KeyError:
+                    pass
                 self._set_freq(freq)
                 self._set_mode(self.freqs[freq]['mode'])
                 self._set_squelch(self.signal_strength)
-                time.sleep(0.5)
+                time.sleep(0.2)
                 if float(self._get_level()) >= self.signal_strength:
-                    while float(self._get_level()) >= self.signal_strength:
-                        time.sleep(self.wait_time)
+                    last_sig_time = pd.Timestamp.now()
+                    while True:
+                        if float(self._get_level()) >= self.signal_strength:
+                            last_sig_time = pd.Timestamp.now()
+
+                        if pd.Timestamp.now() - last_sig_time > pd.Timedelta(f"{self.wait_time}S"):
+                            break
 
     def scan_range(self, minfreq, maxfreq, mode, step=500, save=None):
         """
@@ -85,24 +117,27 @@ class Scanner:
                     self._set_freq(freq)
                     self._set_mode(mode)
                     self._set_squelch(self.signal_strength)
-                    time.sleep(0.1)
+                    time.sleep(0.15)
                     if float(self._get_level()) >= self.signal_strength:
-                        timenow = str(time.localtime().tm_hour) + ':' + str(time.localtime().tm_min)
+                        if self._is_blocked(freq):
+                            freq = freq + step
+                            continue
+                        timenow = pd.Timestamp.now()
                         print(timenow, freq)
                         if save is not None:
                             writer.write(f"{timenow}:  {freq}")
-                        # print("Press enter to continue scanning")
                         while float(self._get_level()) >= self.signal_strength:
                             key = input()
                             if key == '':
                                 freq = freq + step
                                 break
+                            elif 'block' in key.lower():
+                                self._add_new_block(freq)
+                                freq = freq + step
+                                break
+
                             else:
                                 pass
-                            #elif 'block' in key.lower():
-                            #    if key.lower() == 'block':
-                            #        self.block_list.append([freq-self.block_radius, freq+self.block_radius])
-
 
                     else:
                         freq = freq + step
@@ -179,6 +214,6 @@ class Scanner:
         return self._update('m')
 
 if __name__ == "__main__":
-    scanner = Scanner()
+    scanner = Scanner(signal_strength=-60)
     scanner.load()
     scanner.scan()
