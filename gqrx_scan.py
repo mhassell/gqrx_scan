@@ -5,10 +5,9 @@ import pandas as pd
 
 class Scanner:
 
-    def __init__(self, hostname='127.0.0.1', port=7356, directory='/', wait_time=5, signal_strength=-55):
+    def __init__(self, hostname='127.0.0.1', port=7356, wait_time=5, signal_strength=-55):
         self.host = hostname
         self.port = port
-        self.directory = directory
         self.wait_time = wait_time
         self.signal_strength = signal_strength
         self.freqs = None
@@ -80,8 +79,9 @@ class Scanner:
                 self._set_freq(freq)
                 self._set_mode(self.freqs[freq]['mode'])
                 self._set_squelch(self.signal_strength)
-                time.sleep(0.2)
-                if float(self._get_level()) >= self.signal_strength:
+                time.sleep(0.35)
+                level = float(self._get_level())
+                if level >= self.signal_strength:
                     last_sig_time = pd.Timestamp.now()
                     while True:
                         if float(self._get_level()) >= self.signal_strength:
@@ -90,7 +90,7 @@ class Scanner:
                         if pd.Timestamp.now() - last_sig_time > pd.Timedelta(f"{self.wait_time}S"):
                             break
 
-    def scan_range(self, minfreq, maxfreq, mode, step=500, save=None):
+    def scan_range(self, minfreq, maxfreq, mode, step=500, save_path=None):
         """
         Scan a range of frequencies
 
@@ -98,15 +98,15 @@ class Scanner:
         :param maxfreq: upper frequency (MHz)
         :param mode: mode to scan in
         :param step: step size (Hz)
-        :param save: (optional) a txt file to save the active frequencies to
+        :param save_path: (optional) a txt file to save the active frequencies to
         :return: none
 
         """
         minfreq = int(float(minfreq) * 1e6)
         maxfreq = int(float(maxfreq) * 1e6)
 
-        if save is not None:
-            writer = open(save, 'wa')
+        if save_path is not None:
+            writer = open(save_path, 'wa')
 
         else:
             freq = minfreq
@@ -124,7 +124,7 @@ class Scanner:
                             continue
                         timenow = pd.Timestamp.now()
                         print(timenow, freq)
-                        if save is not None:
+                        if save_path is not None:
                             writer.write(f"{timenow}:  {freq}")
                         while float(self._get_level()) >= self.signal_strength:
                             key = input()
@@ -135,7 +135,6 @@ class Scanner:
                                 self._add_new_block(freq)
                                 freq = freq + step
                                 break
-
                             else:
                                 pass
 
@@ -186,6 +185,8 @@ class Scanner:
         read the csv file with the frequencies & modes
         in it into a dict{} where keys are the freq and
         the value is a dict with the mode and a tag
+        csv is in the format 
+            freq (MHz), mode, name
         """
         self.freqs = {}
         with open(freq_csv, 'r') as csvfile:

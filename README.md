@@ -8,27 +8,46 @@ Usage:
 
 Import the module, and make a scanner instance:
 
-	scanner = gqrx_scan.Scanner(hostname='127.0.0.1', port=7356, directory='/', wait_time=5, signal_strength=-50)
+	scanner = gqrx_scan.Scanner(hostname='127.0.0.1', port=7356, wait_time=5, signal_strength=-55)
 
-These are the default arguments in the constructor, which you can modify as you need.  The hostname and port are where the scanner connects to GQRX.  The directory is where you've saved a csv file with the frequencies you wish to scan.  The wait_time is how long the scanner waits after a signal drops below the threshold before continuing scanning.  This is useful if you have dispatch tones before a voice dispatch, for example.   The signal_strength field is the strength below which signals are ignored.
+These are the default arguments in the constructor, which you can modify as you need.  The hostname and port are where the scanner connects to GQRX.  The directory is where you've saved a csv file with the frequencies you wish to scan.  The wait_time is how long the scanner waits after a signal drops below the threshold before continuing scanning.  This is useful if you have dispatch tones before a voice dispatch, for example.   The signal_strength field is the strength below which signals are ignored (squelch).
 
 Once you have a scanner object, call 
 
-	scanner.load(freq = 'freq.csv') 
+	scanner.load(freq='freq.csv') 
 
 to import the csv into the scanner, and then run 
 
 	scanner.scan()
 
+The csv file should be of the format
+
+	freq, mode, name
+
+where the frequency is in MHz.  Specify the mode according to one of the modes in the table below.  On the left the is name of the mode, on the right is what you enter in the csv file.
+
+	'Narrow FM' : 'FM'
+	'Demod Off' : 'OFF'
+	'Raw I/Q'   : 'RAW'
+	'AM-Sync'   : 'AMS'
+	'AM'        : 'AM'
+	'USB'       : 'USB'
+	'LSB'       : 'LSB'
+	'WFM (mono)': 'WFM'
+	'WFM (stereo)' : 'WFM_ST'
+	'WFM (oirt)': 'WFM_ST_OIRT'
+	'CW-L'      : 'CWL'
+	'CW-U'      : 'CWU'
+
 If you store bookmarks in GQRX, you can use those as input to the scanner as well:
 
 	scanner.read_bookmarks(path-to-bookmarks)
 
-and again call the scan() method.   The bookmarks are stored (at least for me on Linux) in /home/{user}/.config/gqrx/bookmarks.csv.
+and again call the scan() method.   The bookmarks are stored (at least for me on Linux) in \~/.config/gqrx/bookmarks.csv
 
 To scan a range of frequencies with a given mode, we can instead use the scan_range method as follows:
 
-    scanner.scan_range(minfreq, maxfreq, mode, step=500, save = None)
+    scanner.scan_range(minfreq, maxfreq, mode, step=500, save=None)
 
 This loops continuously from minfreq to maxfreq with a step size of step (defaults to 500 Hz) and stops 
 when there is a transmission.  In the future I'd like to add a save option to write active frequencies to a file for later review.
