@@ -26,14 +26,16 @@ class Scanner:
         # M - Set demodulator mode (OFF, RAW, AM, FM, WFM, WFM_ST,
         # WFM_ST_OIRT, LSB, USB, CW, CWL, CWU)
         self.block_list = pd.Series(dtype=bool) # list of lists to block a small window of birdies and other interference
-        self.block_radius = 10000 # +/- Hz (same 2*bw as NFM)
+        self.block_radius = 10000 # + Hz (same 2*bw as NFM); only block freq + block_radius with this
+        self.block_eps = 1000 # Hz to account for squelch and not overdo it; only block freq - block_eps with this
 
     def _add_new_block(self, freq):
         '''
-        Add an interval (freq-self.block_radius, freq+self.block_radius)
+        Add an interval (freq-self.block_eps, freq+self.block_radius)
         '''
         radius = self.block_radius
-        block_index = pd.IntervalIndex.from_tuples([(freq-radius, freq+radius)], closed='both')
+        eps = self.block_eps
+        block_index = pd.IntervalIndex.from_tuples([(freq-eps, freq+radius)], closed='both')
         block_ser = pd.Series(True, index=block_index)
         self.block_list = self.block_list.append(block_ser)
 
