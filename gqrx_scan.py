@@ -65,7 +65,7 @@ class Scanner:
         tn.write('c\n'.encode('ascii'))
         return response
 
-    def scan(self):
+    def scan(self, groups=set()):
         """
         loop over the frequencies in the list, 
         and stop if the frequency is active (signal strength is high enough)
@@ -73,24 +73,31 @@ class Scanner:
         while(1):
             for freq in self.freqs.keys():
                 try:
-                    if self.freqs[freq]['tag'].lower() == 'skip':
+                    if 'skip' in set(self.freqs[freq]['tag'].split(',')):
                         print(f"Skipping {freq}: {self.freqs[freq]['name']}")
                         continue
                 except KeyError:
                     pass
-                self._set_freq(freq)
-                self._set_mode(self.freqs[freq]['mode'])
-                self._set_squelch(self.signal_strength)
-                time.sleep(0.35)
-                level = float(self._get_level())
-                if level >= self.signal_strength:
-                    last_sig_time = pd.Timestamp.now()
-                    while True:
-                        if float(self._get_level()) >= self.signal_strength:
-                            last_sig_time = pd.Timestamp.now()
 
-                        if pd.Timestamp.now() - last_sig_time > pd.Timedelta(f"{self.wait_time}S"):
-                            break
+                if len(groups) == 0:
+                    in_group = True
+                else:
+                    in_group = len(set(self.freqs[freq]['tag'].split(',')).intersection(groups)) > 0
+
+                if in_group:
+                    self._set_freq(freq)
+                    self._set_mode(self.freqs[freq]['mode'])
+                    self._set_squelch(self.signal_strength)
+                    time.sleep(0.35)
+                    level = float(self._get_level())
+                    if level >= self.signal_strength:
+                        last_sig_time = pd.Timestamp.now()
+                        while True:
+                            if float(self._get_level()) >= self.signal_strength:
+                                last_sig_time = pd.Timestamp.now()
+
+                            if pd.Timestamp.now() - last_sig_time > pd.Timedelta(f"{self.wait_time}S"):
+                                break
 
     def scan_range(self, minfreq, maxfreq, mode, step=500, save_path=None):
         """

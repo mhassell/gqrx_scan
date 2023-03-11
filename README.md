@@ -47,6 +47,8 @@ If you store bookmarks in GQRX, you can use those as input to the scanner as wel
 
 and again call the scan() method.   The bookmarks are stored in \~/.config/gqrx/bookmarks.csv on Linux systems.   Sometimes it is worth skipping some bookmarked frequencies.  If you change the "Tag" for a bookmark to "skip," the scanner will ignore that frequency.  If you change/add/remove a tag while running the scanner, you need to call scanner.read_bookmarks() again to update the bookmarks.
 
+There's also a way to use the bookmarks to choose what you do and do not want to scan.  If we pass a list of strings to scan, the scan command will check if the Tag of each bookmark is in the list.  If so, it tunes to that channel, otherwise it skips it.  We can assign some frequencies to be in a group called 'Ham' and other frequencies to be in a group called 'Aircraft'. A call of scan(['Ham']) will only scan the frequencies with the 'Ham' tag and will skip the 'Aircraft' tag.  If we call scan() without arguments, it will scan all of the frequencies except for those marked 'skip'.  We can also call scan(['Ham', 'Aircraft']) to specify more than one tag to scan.
+
 To scan a range of frequencies with a given mode, we can instead use the scan_range method as follows:
 
     scanner.scan_range(minfreq, maxfreq, mode, step=500, save=None)
@@ -72,3 +74,5 @@ TBD:
 3. Set squelch/signal_strength for each channel
 
 4. Timeout for scan_range (so as not to get stuck on a birdie or a continuous broadcast)
+
+5. Pause scanning from command line
