@@ -47,9 +47,9 @@ If you store bookmarks in GQRX, you can use those as input to the scanner as wel
 
 and again call the scan() method.   The bookmarks are stored in \~/.config/gqrx/bookmarks.csv on Linux systems.   Sometimes it is worth skipping some bookmarked frequencies.  If you change the "Tag" for a bookmark to "skip," the scanner will ignore that frequency.  If you change/add/remove a tag while running the scanner, you need to call scanner.read_bookmarks() again to update the bookmarks.
 
-There's also a way to use the bookmarks to choose what you do and do not want to scan.  If we pass a list of strings to scan, the scan command will check if the Tag of each bookmark is in the list.  If so, it tunes to that channel, otherwise it skips it.  We can assign some frequencies to be in a group called 'Ham' and other frequencies to be in a group called 'Aircraft'. A call of scan(['Ham']) will only scan the frequencies with the 'Ham' tag and will skip the 'Aircraft' tag.  If we call scan() without arguments, it will scan all of the frequencies except for those marked 'skip'.  We can also call scan(['Ham', 'Aircraft']) to specify more than one tag to scan.
+There's also a way to use the bookmarks to choose what you do and do not want to scan.  If we pass a list of strings to `scan`, the `scan` command will check if the Tag of each bookmark is in the list.  If so, it tunes to that channel, otherwise it skips it.  We can assign some frequencies to be in a group called 'Ham' and other frequencies to be in a group called 'Aircraft'. A call of `scan(['Ham'])` will only scan the frequencies with the 'Ham' tag and will skip the 'Aircraft' tag.  If we call `scan()` without arguments, it will scan all of the frequencies except for those marked 'skip'.  We can also call `scan(['Ham', 'Aircraft'])` to specify more than one tag to scan.
 
-To scan a range of frequencies with a given mode, we can instead use the scan_range method as follows:
+To scan a range of frequencies with a given mode, we can instead use the `scan_range` method as follows:
 
     scanner.scan_range(minfreq, maxfreq, mode, step=500, save=None)
 
@@ -59,7 +59,7 @@ As an example, we can scan the US FM broadcast band by way of the command
 
     scanner.scan_range(88.0, 108.0, 'WFM_ST', step=100000)
  
-This will loop over the FM broadcast bands and stop on the first active station.  While scanning over a range we may hit interference we do not want to keep waiting on.  We can either press Enter and we will increment to the next frequency (current frequency + step) or we can type "block" in the command line. The block command will enter the current frequency and a window around it into an ignore list.  The next time we pass near that frequency, we will not stop for any signals.  The block command creates an interval of the form [freq-eps, freq+2*B] around the frequency.  By default B is 5KHz, which will block an NFM signal.  eps is 1KHz to account for squelch's impact on when the signal if first detected.  The block intervals are not saved for future usage.
+This will loop over the FM broadcast bands and stop on the first active station.  While scanning over a range we may hit interference we do not want to keep waiting on.  We can either press Enter and we will increment to the next frequency (current frequency + step) or we can type "block" in the command line. The block command will enter the current frequency and a window around it into an ignore list.  The next time we pass near that frequency, we will not stop for any signals.  The block command creates an interval of the form `[freq-eps, freq+2*B]` around the frequency.  By default B is 5KHz, which will block an NFM signal.  eps is 1KHz to account for squelch's impact on when the signal if first detected.  The block intervals are not saved for future usage.
 
 Make sure you have enabled remote connections in GQRX.
 
