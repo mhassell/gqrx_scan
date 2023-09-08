@@ -1,6 +1,6 @@
 # gqrx_scan
 
-A scanner to interface with GQRX, based on the remote control tool https://github.com/marmelo/gqrx-remote  
+A scanner to interface with GQRX, based on the remote control tool [gqrx-remote](https://github.com/marmelo/gqrx-remote)
 
 Loops over a list of frequencies in a csv and listens for activity.  
 
@@ -45,7 +45,7 @@ If you store bookmarks in GQRX, you can use those as input to the scanner as wel
 
 	scanner.read_bookmarks(path-to-bookmarks)
 
-and again call the scan() method.   The bookmarks are stored in \~/.config/gqrx/bookmarks.csv on Linux systems.   Sometimes it is worth skipping some bookmarked frequencies.  If you change the "Tag" for a bookmark to "skip," the scanner will ignore that frequency.  If you change/add/remove a tag while running the scanner, you need to call scanner.read_bookmarks() again to update the bookmarks.
+and again call the scan() method.   The bookmarks are stored in `\~/.config/gqrx/bookmarks.csv` on Linux systems.   Sometimes it is worth skipping some bookmarked frequencies.  If you change the "Tag" for a bookmark to "skip," the scanner will ignore that frequency.  If you change/add/remove a tag while running the scanner, you need to call `scanner.read_bookmarks(path-to-bookmarks)` again to update the bookmarks.
 
 There's also a way to use the bookmarks to choose what you do and do not want to scan.  If we pass a list of strings to `scan`, the `scan` command will check if the Tag of each bookmark is in the list.  If so, it tunes to that channel, otherwise it skips it.  We can assign some frequencies to be in a group called 'Ham' and other frequencies to be in a group called 'Aircraft'. A call of `scan(['Ham'])` will only scan the frequencies with the 'Ham' tag and will skip the 'Aircraft' tag.  If we call `scan()` without arguments, it will scan all of the frequencies except for those marked 'skip'.  We can also call `scan(['Ham', 'Aircraft'])` to specify more than one tag to scan.
 
@@ -53,17 +53,28 @@ To scan a range of frequencies with a given mode, we can instead use the `scan_r
 
     scanner.scan_range(minfreq, maxfreq, mode, step=500, save=None)
 
-This loops continuously from minfreq to maxfreq with a step size of step (defaults to 500 Hz) and stops 
-when there is a transmission.
+This loops continuously from minfreq to maxfreq with a step size of step (defaults to 500 Hz) and stops when there is a transmission.
 As an example, we can scan the US FM broadcast band by way of the command
 
     scanner.scan_range(88.0, 108.0, 'WFM_ST', step=100000)
  
 This will loop over the FM broadcast bands and stop on the first active station.  While scanning over a range we may hit interference we do not want to keep waiting on.  We can either press Enter and we will increment to the next frequency (current frequency + step) or we can type "block" in the command line. The block command will enter the current frequency and a window around it into an ignore list.  The next time we pass near that frequency, we will not stop for any signals.  The block command creates an interval of the form `[freq-eps, freq+2*B]` around the frequency.  By default B is 5KHz, which will block an NFM signal.  eps is 1KHz to account for squelch's impact on when the signal if first detected.  The block intervals are not saved for future usage.
 
+Another feature is to monitor a list of frequencies for recording purposes.  Modify the `record_freqs.csv` file to have the frequency in Hz and the mode in one row for each channel you want to record.  Then run the recording scanner as follows:
+
+```
+from gqrx_scan import Scanner
+sc = Scanner(signal_strength=-60)
+sc.set_record_list("record_freqs.csv")
+sc.listen_and_record(time_limit=10)
+```
+
+With a scanner instance, we set the path to the recording frequencies via `set_record_list`.  We then call `listen_and_record`. The `time_limit` value is how many seconds we will continue recording after the signal drops below the `signal_strength` threshold.  If no `time_limit` value is provided then the default is 10 seconds. Sometimes it makes sense to extend this based on the nature of what is being recorded. When we encounter a signal on the `record_freqs.csv` list, it begins recording the audio output to a .wav file.  If the sound from the file is clipping, then adjust the gain down on the audio panel in GQRX (Crtl+A). If you interrupt the recording script while it is recording a transmission, the recording will continue and will need to be manually stopped.
+
+
 Make sure you have enabled remote connections in GQRX.
 
-If anyone would like to contribute, submit a pull request!
+If you would like to contribute, submit a pull request!
 
 TBD:
 
@@ -73,6 +84,6 @@ TBD:
 
 3. Set squelch/signal_strength for each channel
 
-4. Timeout for scan_range (so as not to get stuck on a birdie or a continuous broadcast)
+4. Timeout for `scan_range` (so as not to get stuck on a birdie or a continuous broadcast)
 
 5. Pause scanning from command line

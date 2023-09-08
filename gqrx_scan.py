@@ -26,16 +26,17 @@ class Scanner:
         # M - Set demodulator mode (OFF, RAW, AM, FM, WFM, WFM_ST,
         # WFM_ST_OIRT, LSB, USB, CW, CWL, CWU)
         self.block_list = pd.Series(dtype=bool) # list of lists to block a small window of birdies and other interference
-        self.block_radius = 10000 # + Hz (same 2*bw as NFM); only block freq + block_radius with this
+        self.block_diameter = 10000 # + Hz (same 2*bw as NFM); only block freq + block_diameter with this
         self.block_eps = 1000 # Hz to account for squelch and not overdo it; only block freq - block_eps with this
+        self.record_list = None
 
     def _add_new_block(self, freq):
         '''
-        Add an interval (freq-self.block_eps, freq+self.block_radius)
+        Add an interval (freq-self.block_eps, freq+self.block_diameter)
         '''
-        radius = self.block_radius
+        diameter = self.block_diameter
         eps = self.block_eps
-        block_index = pd.IntervalIndex.from_tuples([(freq-eps, freq+radius)], closed='both')
+        block_index = pd.IntervalIndex.from_tuples([(freq-eps, freq+diameter)], closed='both')
         block_ser = pd.Series(True, index=block_index)
         self.block_list = self.block_list.append(block_ser)
 
@@ -207,6 +208,61 @@ class Scanner:
                     self.freqs[freq] = {'mode': row[1], 'tag': None}
                 elif len(row) == 3:
                     self.freqs[freq] = {'mode' : row[1], 'tag': row[2]}     # add the freq to the dict as a key and the mode as the value
+
+    def set_record_list(self, record_list_path):
+        # csv of the form freq in hz, mode
+        self.record_list = pd.read_csv(record_list_path)
+
+    def listen_and_record(self, time_limit=10):
+        '''
+        Loop over stuff in the record_list.csv file (freq_in_hz, mode)
+        and if we cross something exceeding self.signal_strength, then kick
+        off recording
+        '''
+        if self.record_list is None:
+            raise("Set the record list path first with set_record_list")
+
+        print("Scanning...")
+        while True:
+            for ff in self.record_list.iterrows():
+                if len(ff) == 2:
+                    freq, mode = ff[1][0], ff[1][1]
+                elif len(ff) == 3:
+                    freq, mode, tag = ff[1][0], ff[1][1], ff[1][2]
+                res = self._set_freq(freq)
+                time.sleep(0.2)
+                res = self._set_mode(mode)
+                time.sleep(0.2)
+                timeout = 0
+                time.sleep(0.25)
+                level = float(self._get_level())
+                if level >= self.signal_strength:
+                    now = pd.Timestamp.now().floor('1S')
+                    print(f"{now} : Recording on {freq}")
+                    self._aos()
+                    time.sleep(0.25)
+                    while True:
+                        level = float(self._get_level())
+                        if level >= self.signal_strength:
+                            timeout = 0
+                            time.sleep(0.25)
+                        else:
+                            if timeout > 4*time_limit:
+                                timeout = 0
+                                self._los()
+                                now = pd.Timestamp.now().floor('1S')
+                                print(f"{now} : Stopping recording on {freq}")
+                                break
+                            timeout += 1
+                            time.sleep(0.25)
+
+    # Commands: https://gqrx.dk/doc/remote-control
+
+    def _aos(self):
+        return self._update("AOS")
+
+    def _los(self):
+        return self._update("LOS")
 
     def _set_freq(self, freq):
         return self._update("F %s" % freq)
