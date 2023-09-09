@@ -222,42 +222,49 @@ class Scanner:
         if self.record_list is None:
             raise("Set the record list path first with set_record_list")
 
-        print("Scanning...")
-        while True:
-            for ff in self.record_list.iterrows():
-                if len(ff) == 2:
-                    freq, mode = ff[1][0], ff[1][1]
-                elif len(ff) == 3:
-                    freq, mode, tag = ff[1][0], ff[1][1], ff[1][2]
-                res = self._set_freq(freq)
-                time.sleep(0.2)
-                res = self._set_mode(mode)
-                time.sleep(0.2)
-                timeout = 0
-                time.sleep(0.25)
-                level = float(self._get_level())
-                if level >= self.signal_strength:
-                    now = pd.Timestamp.now().floor('1S')
-                    print(f"{now} : Recording on {freq}")
-                    self._aos()
+        try:
+            print("Scanning...")
+            while True:
+                for ff in self.record_list.iterrows():
+                    if len(ff) == 2:
+                        freq, mode = ff[1][0], ff[1][1]
+                    elif len(ff) == 3:
+                        freq, mode, tag = ff[1][0], ff[1][1], ff[1][2]
+                    res = self._set_freq(freq)
+                    time.sleep(0.2)
+                    res = self._set_mode(mode)
+                    time.sleep(0.2)
+                    timeout = 0
                     time.sleep(0.25)
-                    while True:
-                        level = float(self._get_level())
-                        if level >= self.signal_strength:
-                            timeout = 0
-                            time.sleep(0.25)
-                        else:
-                            if timeout > 4*time_limit:
+                    level = float(self._get_level())
+                    if level >= self.signal_strength:
+                        now = pd.Timestamp.now().floor('1S')
+                        print(f"{now} : Recording on {freq}")
+                        self._aos()
+                        time.sleep(0.25)
+                        while True:
+                            level = float(self._get_level())
+                            if level >= self.signal_strength:
                                 timeout = 0
-                                self._los()
-                                now = pd.Timestamp.now().floor('1S')
-                                print(f"{now} : Stopping recording on {freq}")
-                                break
-                            timeout += 1
-                            time.sleep(0.25)
+                                time.sleep(0.25)
+                            else:
+                                if timeout > 4*time_limit:
+                                    timeout = 0
+                                    self._los()
+                                    now = pd.Timestamp.now().floor('1S')
+                                    print(f"{now} : Stopping recording on {freq}")
+                                    break
+                                timeout += 1
+                                time.sleep(0.25)
+        except KeyboardInterrupt:
+            timeout = 0
+            self._los()
+            now = pd.Timestamp.now().floor('1S')
+            print(f"{now} : KeyboardInterrupt raised: stopping recording and raising")
+            raise KeyboardInterrupt
+
 
     # Commands: https://gqrx.dk/doc/remote-control
-
     def _aos(self):
         return self._update("AOS")
 

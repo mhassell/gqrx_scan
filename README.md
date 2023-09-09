@@ -69,7 +69,7 @@ sc.set_record_list("record_freqs.csv")
 sc.listen_and_record(time_limit=10)
 ```
 
-With a scanner instance, we set the path to the recording frequencies via `set_record_list`.  We then call `listen_and_record`. The `time_limit` value is how many seconds we will continue recording after the signal drops below the `signal_strength` threshold.  If no `time_limit` value is provided then the default is 10 seconds. Sometimes it makes sense to extend this based on the nature of what is being recorded. When we encounter a signal on the `record_freqs.csv` list, it begins recording the audio output to a .wav file.  If the sound from the file is clipping, then adjust the gain down on the audio panel in GQRX (Crtl+A). If you interrupt the recording script while it is recording a transmission, the recording will continue and will need to be manually stopped.
+With a scanner instance, we set the path to the recording frequencies via `set_record_list`.  We then call `listen_and_record`. The `time_limit` value is how many seconds we will continue recording after the signal drops below the `signal_strength` threshold.  If no `time_limit` value is provided then the default is 10 seconds. Sometimes it makes sense to extend this based on the nature of what is being recorded. When we encounter a signal on the `record_freqs.csv` list, it begins recording the audio output to a .wav file.  If the sound from the file is clipping, then adjust the gain down on the audio panel in GQRX (Crtl+A). If you interrupt the scanner while recording, the recording will be stopped.
 
 
 Make sure you have enabled remote connections in GQRX.
@@ -82,7 +82,7 @@ TBD:
 
 2. Ability to add/delete frequencies in the GUI
 
-3. Set squelch/signal_strength for each channel
+3. Set `signal_strength` for each channel
 
 4. Timeout for `scan_range` (so as not to get stuck on a birdie or a continuous broadcast)
 
