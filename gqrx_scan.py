@@ -213,11 +213,13 @@ class Scanner:
         # csv of the form freq in hz, mode
         self.record_list = pd.read_csv(record_list_path)
 
-    def listen_and_record(self, time_limit=10):
+    def listen_and_record(self, time_limit=10, audio=True):
         '''
         Loop over stuff in the record_list.csv file (freq_in_hz, mode)
         and if we cross something exceeding self.signal_strength, then kick
         off recording
+
+        audio: if true, record the audio after demodulation.  If false, record the IQ for the whole spectrum
         '''
         if self.record_list is None:
             raise("Set the record list path first with set_record_list")
@@ -240,7 +242,10 @@ class Scanner:
                     if level >= self.signal_strength:
                         now = pd.Timestamp.now().floor('1S')
                         print(f"{now} : Recording on {freq}")
-                        self._aos()
+                        if audio:
+                            self._aos()
+                        else:
+                            self._aoiq()
                         time.sleep(0.25)
                         while True:
                             level = float(self._get_level())
@@ -250,7 +255,10 @@ class Scanner:
                             else:
                                 if timeout > 4*time_limit:
                                     timeout = 0
-                                    self._los()
+                                    if audio:
+                                        self._los()
+                                    else:
+                                        self._loiq()
                                     now = pd.Timestamp.now().floor('1S')
                                     print(f"{now} : Stopping recording on {freq}")
                                     break
@@ -258,7 +266,10 @@ class Scanner:
                                 time.sleep(0.25)
         except KeyboardInterrupt:
             timeout = 0
-            self._los()
+            if audio:
+                self._los()
+            else:
+                self._loiq()
             now = pd.Timestamp.now().floor('1S')
             print(f"{now} : KeyboardInterrupt raised: stopping recording and raising")
             raise KeyboardInterrupt
@@ -270,6 +281,12 @@ class Scanner:
 
     def _los(self):
         return self._update("LOS")
+
+    def _aoiq(self):
+        return self._update("U IQRECORD 1")
+
+    def _loiq(self):
+        return self._update("U IQRECORD 0")
 
     def _set_freq(self, freq):
         return self._update("F %s" % freq)
