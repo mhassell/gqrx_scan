@@ -283,10 +283,10 @@ class Scanner:
         return self._update("LOS")
 
     def _aoiq(self):
-        return self._update("AOIQ")
+        return self._update("U IQRECORD 1")
 
     def _loiq(self):
-        return self._update("LOIQ")
+        return self._update("U IQRECORD 0")
 
     def _set_freq(self, freq):
         return self._update("F %s" % freq)
