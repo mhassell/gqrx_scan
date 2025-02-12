@@ -71,6 +71,8 @@ sc.listen_and_record(time_limit=10)
 
 With a scanner instance, we set the path to the recording frequencies via `set_record_list`.  We then call `listen_and_record`. The `time_limit` value is how many seconds we will continue recording after the signal drops below the `signal_strength` threshold.  If no `time_limit` value is provided then the default is 10 seconds. Sometimes it makes sense to extend this based on the nature of what is being recorded. When we encounter a signal on the `record_freqs.csv` list, it begins recording the audio output to a .wav file.  If the sound from the file is clipping, then adjust the gain down on the audio panel in GQRX (Crtl+A). If you interrupt the scanner while recording, the recording will be stopped.
 
+Another option for the listen_and_record method is to set the audio flag to false (it defaults to true): `listen_and_record(audio=False)`.  This will capture IQ data instead of audio data.  Beware! IQ data is generally much larger than audio data, so a lengthy recording or a recording from a device with a large bandwith will take up a lot of disk space.
+
 
 Make sure you have enabled remote connections in GQRX.
 
