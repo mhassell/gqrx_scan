@@ -89,3 +89,5 @@ TBD:
 4. Timeout for `scan_range` (so as not to get stuck on a birdie or a continuous broadcast)
 
 5. Pause scanning from command line
+
+6. Figure out why the sleep commands are needed.  I opened an [issue](https://github.com/mhassell/gqrx_scan/issues/6) to explore this.  In my own trials it seems there is a delay of when we change frequency and mode, and then fetch the signal level.  We need a 0.75s delay to capture the signal level for the channel we tuned to.  Otherwise, we either get a value that is not representative of the signal and scan in a loop forever, or we get the signal level for a frequency that was set a few steps ago.  I am curious if other people who wrote scanner utilities, eg, [neural75s](https://github.com/neural75/gqrx-scanner) scanner.  This one does something interesting -- it scans past a channel with signal, and then backpedals iteratively until it finds the peak of the signal.  I am curious if this Newton's-method-like approach is to overcome this delay between detecting a signal and registering the signal strength through telnet.
